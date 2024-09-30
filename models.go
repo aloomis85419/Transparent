@@ -221,13 +221,13 @@ type FilingType struct {
 type FilingTypes []FilingType
 
 // LobbyingIssue represents the structure for a lobbying activity issue
-type LobbyingIssue struct {
+type LobbyingActivityIssue struct {
 	Value string `json:"value"`
 	Name  string `json:"name"`
 }
 
 // LobbyingIssues represents a list of lobbying activity issues
-type LobbyingIssues []LobbyingIssue
+type LobbyingIssues []LobbyingActivityIssue
 
 // GovernmentEntity represents the structure for a government entity
 type GovernmentEntity struct {

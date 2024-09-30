@@ -66,153 +66,187 @@ func (lda *LDAClient) listFilings() []Filing {
 func (lda *LDAClient) retrieveFiling(id interface{}) Filing {
 	resp := lda.getById(lda.Cfg.EndpointInfo["filings"], id)
 	defer resp.Body.Close()
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	filing := Filing{}
-	json.Unmarshal(body, filing)
+	if err := json.Unmarshal(body, &filing); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return filing
 }
 
 func (lda *LDAClient) listContributionReports() []ContributionReport {
 	resp := lda.get(lda.Cfg.EndpointInfo["contributions"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	contributions := []ContributionReport{}
-	json.Unmarshal(body, contributions)
+	if err := json.Unmarshal(body, &contributions); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return contributions
 }
 
 func (lda *LDAClient) retrieveContributionReport(id interface{}) ContributionReport {
 	resp := lda.getById(lda.Cfg.EndpointInfo["contributions"], id)
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	contribution := ContributionReport{}
-	json.Unmarshal(body, contribution)
+	if err := json.Unmarshal(body, &contribution); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return contribution
 }
 
 func (lda *LDAClient) listRegistrants() *http.Response {
 	resp := lda.get(lda.Cfg.EndpointInfo["registrants"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	registrants := []Registrant{}
-	json.Unmarshal(body, registrants)
+	if err := json.Unmarshal(body, &registrants); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return resp
 }
 
 func (lda *LDAClient) retrieveRegistrant(id interface{}) Registrant {
 	resp := lda.getById(lda.Cfg.EndpointInfo["registrants"], id)
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	registrant := Registrant{}
-	json.Unmarshal(body, registrant)
+	if err := json.Unmarshal(body, &registrant); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return registrant
 }
 
 func (lda *LDAClient) listClients() []Client {
 	resp := lda.get(lda.Cfg.EndpointInfo["clients"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	clients := []Client{}
-	json.Unmarshal(body, clients)
+	if err := json.Unmarshal(body, &clients); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return clients
 }
 
 func (lda *LDAClient) retrieveClient(id interface{}) Client {
 	resp := lda.getById(lda.Cfg.EndpointInfo["clients"], id)
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	client := Client{}
-	json.Unmarshal(body, client)
+	if err := json.Unmarshal(body, &client); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return client
 }
 
 func (lda *LDAClient) listLobbyists() []Lobbyist {
 	resp := lda.get(lda.Cfg.EndpointInfo["lobbyists"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	lobbyists := []Lobbyist{}
-	json.Unmarshal(body, lobbyists)
+	if err := json.Unmarshal(body, &lobbyists); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return lobbyists
 }
 
 func (lda *LDAClient) retrieveLobbyist(id interface{}) Lobbyist {
 	resp := lda.getById(lda.Cfg.EndpointInfo["lobbyists"], id)
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	lobbyist := Lobbyist{}
-	json.Unmarshal(body, lobbyist)
+	if err := json.Unmarshal(body, &lobbyist); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return lobbyist
 }
 
 func (lda *LDAClient) listFilingTypes() []FilingType {
 	resp := lda.get(lda.Cfg.EndpointInfo["filingtypes"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	filingTypes := []FilingType{}
-	json.Unmarshal(body, filingTypes)
+	if err := json.Unmarshal(body, &filingTypes); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return filingTypes
 }
 
 func (lda *LDAClient) listLobbyingActivityGeneralIssues() []LobbyingActivityIssue {
 	resp := lda.get(lda.Cfg.EndpointInfo["lobbyingactivityissues"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	lobbyingActivityIssues := []LobbyingActivityIssue{}
-	json.Unmarshal(body, lobbyingActivityIssues)
+	if err := json.Unmarshal(body, &lobbyingActivityIssues); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return lobbyingActivityIssues
 }
 
 func (lda *LDAClient) listGovernmentEntities() []GovernmentEntity {
 	resp := lda.get(lda.Cfg.EndpointInfo["governmententities"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	governmentEntities := []GovernmentEntity{}
-	json.Unmarshal(body, governmentEntities)
+	if err := json.Unmarshal(body, &governmentEntities); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return governmentEntities
 }
 
 func (lda *LDAClient) listCountries() []Country {
 	resp := lda.get(lda.Cfg.EndpointInfo["countries"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	countries := []Country{}
-	json.Unmarshal(body, countries)
+	if err := json.Unmarshal(body, &countries); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return countries
 }
 
 func (lda *LDAClient) listStates() []State {
 	resp := lda.get(lda.Cfg.EndpointInfo["states"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	states := []State{}
-	json.Unmarshal(body, states)
+	if err := json.Unmarshal(body, &states); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return states
 }
 
 func (lda *LDAClient) listLobbyistPrefixes() []LobbyistPrefix {
 	resp := lda.get(lda.Cfg.EndpointInfo["lobbyistPrefixes"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	lobbyistPrefixes := []LobbyistPrefix{}
-	json.Unmarshal(body, lobbyistPrefixes)
+	if err := json.Unmarshal(body, &lobbyistPrefixes); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return lobbyistPrefixes
 }
 
 func (lda *LDAClient) listLobbyistSuffixes() []LobbyistSuffix {
 	resp := lda.get(lda.Cfg.EndpointInfo["lobbyistSuffixes"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	lobbyistSuffixes := []LobbyistSuffix{}
-	json.Unmarshal(body, lobbyistSuffixes)
+	if err := json.Unmarshal(body, &lobbyistSuffixes); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return lobbyistSuffixes
 }
 
 func (lda *LDAClient) listContributionItemTypes() []ContributionItemType {
 	resp := lda.get(lda.Cfg.EndpointInfo["contributionItemTypes"])
-	body := []byte{}
-	resp.Body.Read(body)
+	body, err := io.ReadAll(resp.Body)
+	CheckErr(err, "", false)
 	contributionItemTypes := []ContributionItemType{}
-	json.Unmarshal(body, contributionItemTypes)
+	if err := json.Unmarshal(body, &contributionItemTypes); err != nil {
+		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
 	return contributionItemTypes
 }
