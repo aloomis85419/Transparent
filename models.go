@@ -1,6 +1,17 @@
 package main
 
-import "time"
+import (
+	"fmt"
+	"log"
+	"time"
+)
+
+type PaginatedFilingResponse struct {
+	Count    int      `json:"count"`
+	Next     string   `json:"next"`
+	Previous string   `json:"previous"`
+	Results  []Filing `json:"results"`
+}
 
 // Filing represents the structure for a filing record
 type Filing struct {
@@ -18,7 +29,7 @@ type Filing struct {
 	ExpensesMethod             string                   `json:"expenses_method"`
 	ExpensesMethodDisplay      string                   `json:"expenses_method_display"`
 	PostedByName               string                   `json:"posted_by_name"`
-	DtPosted                   time.Time                `json:"dt_posted"`
+	DtPosted                   CustomDate               `json:"dt_posted"`
 	TerminationDate            string                   `json:"termination_date"`
 	RegistrantCountry          string                   `json:"registrant_country"`
 	RegistrantPPBCountry       string                   `json:"registrant_ppb_country"`
@@ -36,35 +47,46 @@ type Filing struct {
 	AffiliatedOrganizations    []AffiliatedOrganization `json:"affiliated_organizations"`
 }
 
+type CustomDate struct {
+	Time time.Time
+}
+
 // Registrant represents the structure for a registrant
 type Registrant struct {
-	ID                int       `json:"id"`
-	URL               string    `json:"url"`
-	HouseRegistrantID int       `json:"house_registrant_id"`
-	Name              string    `json:"name"`
-	Description       string    `json:"description"`
-	Address1          string    `json:"address_1"`
-	Address2          string    `json:"address_2"`
-	Address3          string    `json:"address_3"`
-	Address4          string    `json:"address_4"`
-	City              string    `json:"city"`
-	State             string    `json:"state"`
-	StateDisplay      string    `json:"state_display"`
-	ZIP               string    `json:"zip"`
-	Country           string    `json:"country"`
-	CountryDisplay    string    `json:"country_display"`
-	PPBCountry        string    `json:"ppb_country"`
-	PPBCountryDisplay string    `json:"ppb_country_display"`
-	ContactName       string    `json:"contact_name"`
-	ContactTelephone  string    `json:"contact_telephone"`
-	DtUpdated         time.Time `json:"dt_updated"`
+	ID                int        `json:"id"`
+	URL               string     `json:"url"`
+	HouseRegistrantID int        `json:"house_registrant_id"`
+	Name              string     `json:"name"`
+	Description       string     `json:"description"`
+	Address1          string     `json:"address_1"`
+	Address2          string     `json:"address_2"`
+	Address3          string     `json:"address_3"`
+	Address4          string     `json:"address_4"`
+	City              string     `json:"city"`
+	State             string     `json:"state"`
+	StateDisplay      string     `json:"state_display"`
+	ZIP               string     `json:"zip"`
+	Country           string     `json:"country"`
+	CountryDisplay    string     `json:"country_display"`
+	PPBCountry        string     `json:"ppb_country"`
+	PPBCountryDisplay string     `json:"ppb_country_display"`
+	ContactName       string     `json:"contact_name"`
+	ContactTelephone  string     `json:"contact_telephone"`
+	DtUpdated         CustomDate `json:"dt_updated"`
+}
+
+type PaginatedRegistrantResponse struct {
+	Count    int          `json:"count"`
+	Next     string       `json:"next"`
+	Previous string       `json:"previous"`
+	Results  []Registrant `json:"results"`
 }
 
 // Client represents the structure for a client
 type Client struct {
 	ID                     int        `json:"id"`
 	URL                    string     `json:"url"`
-	ClientID               string     `json:"client_id"`
+	ClientID               int        `json:"client_id"`
 	Name                   string     `json:"name"`
 	GeneralDescription     string     `json:"general_description"`
 	ClientGovernmentEntity bool       `json:"client_government_entity"`
@@ -77,8 +99,15 @@ type Client struct {
 	PPBStateDisplay        string     `json:"ppb_state_display"`
 	PPBCountry             string     `json:"ppb_country"`
 	PPBCountryDisplay      string     `json:"ppb_country_display"`
-	EffectiveDate          time.Time  `json:"effective_date"`
+	EffectiveDate          CustomDate `json:"effective_date"`
 	Registrant             Registrant `json:"registrant"`
+}
+
+type PaginatedClientResponse struct {
+	Count    int      `json:"count"`
+	Next     string   `json:"next"`
+	Previous string   `json:"previous"`
+	Results  []Client `json:"results"`
 }
 
 // LobbyingActivity represents the structure for lobbying activities
@@ -89,6 +118,13 @@ type LobbyingActivity struct {
 	ForeignEntityIssues     string      `json:"foreign_entity_issues"`
 	Lobbyists               []Lobbyist  `json:"lobbyists"`
 	GovernmentEntities      []GovEntity `json:"government_entities"`
+}
+
+type PaginatedLobbyingActivityResponse struct {
+	Count    int                `json:"count"`
+	Next     string             `json:"next"`
+	Previous string             `json:"previous"`
+	Results  []LobbyingActivity `json:"results"`
 }
 
 // Lobbyist represents the structure for a lobbyist involved in lobbying activities
@@ -103,6 +139,13 @@ type Lobbyist struct {
 	Suffix        string     `json:"suffix"`
 	SuffixDisplay string     `json:"suffix_display"`
 	Registrant    Registrant `json:"registrant"`
+}
+
+type PaginatedLobbyistResponse struct {
+	Count    int        `json:"count"`
+	Next     string     `json:"next"`
+	Previous string     `json:"previous"`
+	Results  []Lobbyist `json:"results"`
 }
 
 // Person represents an individual with prefixes, suffixes, and name details
@@ -182,7 +225,7 @@ type ContributionReport struct {
 	FilingDocumentContentType string             `json:"filing_document_content_type"`
 	FilerType                 string             `json:"filer_type"`
 	FilerTypeDisplay          string             `json:"filer_type_display"`
-	DtPosted                  time.Time          `json:"dt_posted"`
+	DtPosted                  CustomDate         `json:"dt_posted"`
 	ContactName               string             `json:"contact_name"`
 	Comments                  string             `json:"comments"`
 	Address1                  string             `json:"address_1"`
@@ -200,15 +243,22 @@ type ContributionReport struct {
 	ContributionItems         []ContributionItem `json:"contribution_items"`
 }
 
+type PaginatedContributionReportResponse struct {
+	Count    int                  `json:"count"`
+	Next     string               `json:"next"`
+	Previous string               `json:"previous"`
+	Results  []ContributionReport `json:"results"`
+}
+
 // ContributionItem represents a single contribution record
 type ContributionItem struct {
-	ContributionType        string    `json:"contribution_type"`
-	ContributionTypeDisplay string    `json:"contribution_type_display"`
-	ContributorName         string    `json:"contributor_name"`
-	PayeeName               string    `json:"payee_name"`
-	HonoreeName             string    `json:"honoree_name"`
-	Amount                  string    `json:"amount"`
-	Date                    time.Time `json:"date"`
+	ContributionType        string     `json:"contribution_type"`
+	ContributionTypeDisplay string     `json:"contribution_type_display"`
+	ContributorName         string     `json:"contributor_name"`
+	PayeeName               string     `json:"payee_name"`
+	HonoreeName             string     `json:"honoree_name"`
+	Amount                  string     `json:"amount"`
+	Date                    CustomDate `json:"date"`
 }
 
 // FilingType represents the structure for a filing type
@@ -282,3 +332,35 @@ type ContributionItemType struct {
 
 // ContributionItemTypes represents a list of contribution item types
 type ContributionItemTypes []ContributionItemType
+
+func (cd *CustomDate) UnmarshalJSON(b []byte) error {
+	// Remove the quotes
+	dateStr := string(b[1 : len(b)-1])
+
+	if len(dateStr) < 10 {
+		log.Println("Invalid date format encountered.")
+		cd.Time = time.Time{}
+		return nil
+	}
+
+	// Handle the case where only the date (no time or timezone) is provided
+	if len(dateStr) == 10 {
+		t, err := time.Parse("2006-01-02", dateStr) // Only date format
+		if err != nil {
+			fmt.Println("Error parsing date:", err)
+			return err
+		}
+		cd.Time = t
+		return nil
+	}
+
+	// For full date-time with time zone
+	t, err := time.Parse("2006-01-02T15:04:05-07:00", dateStr)
+	if err != nil {
+		fmt.Println("Error parsing full date-time:", err)
+		return err
+	}
+
+	cd.Time = t
+	return nil
+}

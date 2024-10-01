@@ -1,9 +1,10 @@
 package main
 
 type Config struct {
-	BaseUrl      string
-	AuthInfo     AuthInfo
-	EndpointInfo map[string]EndpointInfo
+	BaseUrl         string
+	AuthInfo        AuthInfo
+	EndpointInfo    map[string]EndpointInfo
+	DefaultPageSize int
 }
 
 type EndpointInfo struct {
@@ -31,10 +32,13 @@ var ENDPOINTS = map[string]EndpointInfo{
 	"contributionItemTypes":  {Name: "constants/contribution/itemtypes/", Url: "constants/contribution/itemtypes/"},
 }
 
-func (cfg *Config) Configure(apiToken string) {
+func Configure(apiToken string) Config {
+	cfg := Config{}
 	authInfo := AuthInfo{}
 	authInfo.ApiToken = apiToken
 	cfg.BaseUrl = "https://lda.senate.gov/api/v1/"
 	cfg.EndpointInfo = ENDPOINTS
 	cfg.AuthInfo = authInfo
+	cfg.DefaultPageSize = 100
+	return cfg
 }

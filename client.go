@@ -7,7 +7,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 )
+
+var cfg = Configure("57a8172387f671b61ff90cdd614f9a4bf82c071d")
+
+var client = newLDAClient(cfg, http.Client{})
 
 type LDAClient struct {
 	Cfg    Config
@@ -39,6 +44,23 @@ func (lda *LDAClient) get(endpointInfo EndpointInfo) *http.Response {
 	return resp
 }
 
+func (lda *LDAClient) getWQuery(endpointInfo EndpointInfo, queryParams map[string]string, page int) *http.Response {
+	jsonData := []byte{}
+	//set page size to default
+	queryParams["page_size"] = strconv.Itoa(lda.Cfg.DefaultPageSize)
+	queryParams["page"] = strconv.Itoa(page)
+	req, err := http.NewRequest("GET", lda.Cfg.BaseUrl+endpointInfo.Url, bytes.NewBuffer(jsonData))
+	CheckErr(err, "creating request", true)
+	addQueryParams(queryParams, req)
+	lda.addHeaders(req)
+	resp, err := lda.Client.Do(req)
+	CheckErr(err, fmt.Sprintf("GET request to %s returned an error", endpointInfo.Url), false)
+	if resp.StatusCode != http.StatusOK {
+		log.Println(fmt.Sprintf("Error: GET request to %s returned an with status code: %s, message: %s", resp.StatusCode, resp.Status))
+	}
+	return resp
+}
+
 func (lda *LDAClient) getById(endpointInfo EndpointInfo, id interface{}) *http.Response {
 	jsonData := []byte{}
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s/%s", lda.Cfg.BaseUrl, endpointInfo.Url, id), bytes.NewBuffer(jsonData))
@@ -52,15 +74,14 @@ func (lda *LDAClient) getById(endpointInfo EndpointInfo, id interface{}) *http.R
 }
 
 func (lda *LDAClient) listFilings() []Filing {
-	resp := lda.get(lda.Cfg.EndpointInfo["filings"])
+	resp := lda.getWQuery(lda.Cfg.EndpointInfo["filings"], map[string]string{}, 2)
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	CheckErr(err, "", false)
-	var filings []Filing
-	if err := json.Unmarshal(body, &filings); err != nil {
-		log.Fatalf("Failed to unmarshal JSON: %v", err)
-	}
-	return filings
+	var paginatedFilingResponse PaginatedFilingResponse
+	err = json.Unmarshal(body, &paginatedFilingResponse)
+	CheckErr(err, "unmarshalling json", true)
+	return paginatedFilingResponse.Results
 }
 
 func (lda *LDAClient) retrieveFiling(id interface{}) Filing {
@@ -79,11 +100,10 @@ func (lda *LDAClient) listContributionReports() []ContributionReport {
 	resp := lda.get(lda.Cfg.EndpointInfo["contributions"])
 	body, err := io.ReadAll(resp.Body)
 	CheckErr(err, "", false)
-	contributions := []ContributionReport{}
-	if err := json.Unmarshal(body, &contributions); err != nil {
-		log.Fatalf("Failed to unmarshal JSON: %v", err)
-	}
-	return contributions
+	var paginatedContributionReportResponse PaginatedContributionReportResponse
+	err = json.Unmarshal(body, &paginatedContributionReportResponse)
+	CheckErr(err, "unmarshalling json", true)
+	return paginatedContributionReportResponse.Results
 }
 
 func (lda *LDAClient) retrieveContributionReport(id interface{}) ContributionReport {
@@ -91,21 +111,20 @@ func (lda *LDAClient) retrieveContributionReport(id interface{}) ContributionRep
 	body, err := io.ReadAll(resp.Body)
 	CheckErr(err, "", false)
 	contribution := ContributionReport{}
-	if err := json.Unmarshal(body, &contribution); err != nil {
-		log.Fatalf("Failed to unmarshal JSON: %v", err)
-	}
+	paginatedRegistrantResponse := []PaginatedRegistrantResponse{}
+	err = json.Unmarshal(body, &paginatedRegistrantResponse)
+	CheckErr(err, "unmarshalling json", true)
 	return contribution
 }
 
-func (lda *LDAClient) listRegistrants() *http.Response {
+func (lda *LDAClient) listRegistrants() []Registrant {
 	resp := lda.get(lda.Cfg.EndpointInfo["registrants"])
 	body, err := io.ReadAll(resp.Body)
 	CheckErr(err, "", false)
-	registrants := []Registrant{}
-	if err := json.Unmarshal(body, &registrants); err != nil {
-		log.Fatalf("Failed to unmarshal JSON: %v", err)
-	}
-	return resp
+	var paginatedRegistrantResponse PaginatedRegistrantResponse
+	err = json.Unmarshal(body, &paginatedRegistrantResponse)
+	CheckErr(err, "unmarshalling json", true)
+	return paginatedRegistrantResponse.Results
 }
 
 func (lda *LDAClient) retrieveRegistrant(id interface{}) Registrant {
@@ -123,11 +142,10 @@ func (lda *LDAClient) listClients() []Client {
 	resp := lda.get(lda.Cfg.EndpointInfo["clients"])
 	body, err := io.ReadAll(resp.Body)
 	CheckErr(err, "", false)
-	clients := []Client{}
-	if err := json.Unmarshal(body, &clients); err != nil {
-		log.Fatalf("Failed to unmarshal JSON: %v", err)
-	}
-	return clients
+	var paginatedClientResponse PaginatedClientResponse
+	err = json.Unmarshal(body, &paginatedClientResponse)
+	CheckErr(err, "unmarshalling json", true)
+	return paginatedClientResponse.Results
 }
 
 func (lda *LDAClient) retrieveClient(id interface{}) Client {
@@ -145,11 +163,10 @@ func (lda *LDAClient) listLobbyists() []Lobbyist {
 	resp := lda.get(lda.Cfg.EndpointInfo["lobbyists"])
 	body, err := io.ReadAll(resp.Body)
 	CheckErr(err, "", false)
-	lobbyists := []Lobbyist{}
-	if err := json.Unmarshal(body, &lobbyists); err != nil {
-		log.Fatalf("Failed to unmarshal JSON: %v", err)
-	}
-	return lobbyists
+	var paginatedLobbyistResponse PaginatedLobbyistResponse
+	err = json.Unmarshal(body, &paginatedLobbyistResponse)
+	CheckErr(err, "unmarshalling json", true)
+	return paginatedLobbyistResponse.Results
 }
 
 func (lda *LDAClient) retrieveLobbyist(id interface{}) Lobbyist {
@@ -249,4 +266,12 @@ func (lda *LDAClient) listContributionItemTypes() []ContributionItemType {
 		log.Fatalf("Failed to unmarshal JSON: %v", err)
 	}
 	return contributionItemTypes
+}
+
+func addQueryParams(queryParams map[string]string, r *http.Request) {
+	query := r.URL.Query()
+	for key, value := range queryParams {
+		query.Add(key, value)
+	}
+	r.URL.RawQuery = query.Encode()
 }

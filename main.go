@@ -8,15 +8,10 @@ import (
 
 func main() {
 	log.Println("Starting http server...")
-	cfg := Config{}
-	cfg.Configure("57a8172387f671b61ff90cdd614f9a4bf82c071d")
-	//http client initialization
-	client := newLDAClient(cfg, http.Client{})
-	client.listFilings()
-	err := http.ListenAndServe("/", nil)
-	if err != nil {
-		log.Fatal("Failed to start server.")
-	}
+	loadDynamicConstants()
+	log.Println("Server is running, waiting for connections...")
+	err := http.ListenAndServe(":8080", nil)
+	CheckErr(err, "starting server", true)
 }
 
 func CheckErr(err error, processMsg string, critical bool) {
